@@ -73,6 +73,9 @@ maskim : maskim.o
 maskim.o: $(STDH) maskim.c
 	$(CC) $(COPTS)  -c maskim.c
 
+install : 
+	mv hotpants /usr/local/bin/
+
 clean :
 	rm -f *.o
 	rm -f *~ .*~

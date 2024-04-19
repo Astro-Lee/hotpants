@@ -42,6 +42,9 @@ extractkern : extractkern.c
 maskim : maskim.c
 	$(CC) $(NCOPTS) maskim.c -o maskim $(LIBS)
 
+install :
+	mv hotpants /usr/local/bin/
+
 clean :
 	rm -f *.o
 	rm -f *~ .*~

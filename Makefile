@@ -75,6 +75,8 @@ maskim.o: $(STDH) maskim.c
 
 install : 
 	mv hotpants /usr/local/bin/
+	mv maskim /usr/local/bin/
+	mv extractkern /usr/local/bin/
 
 clean :
 	rm -f *.o

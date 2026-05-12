@@ -24,7 +24,7 @@ DESTDIR ?=
 # COMPILATION OPTIONS
 #
 
-COPTS = -funroll-loops -O3 -ansi -Wall $(CFITSIO_CFLAGS) -I/usr/include/malloc
+COPTS = -funroll-loops -O3 -ansi -Wall -Wno-unused-but-set-variable $(CFITSIO_CFLAGS) -I/usr/include/malloc
 LIBS  = $(CFITSIO_LIBS) -lm
 
 CC    = gcc

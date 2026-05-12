@@ -21,7 +21,7 @@ code.
 
 */
 
-void getKernelVec() {
+void getKernelVec(void) {
     /*****************************************************
      * Fills kernel_vec with kernel weight filter, called only once
      *****************************************************/
@@ -1460,8 +1460,8 @@ int ludcmp(double **a, int n, int *indx, double *d)
 {
     int     i,imax=0,j,k;
     double  big,dum,sum,temp2;
-    double  *vv,*lvector();
-    void    lnrerror();
+    double  *vv,*lvector(void);
+    void    lnrerror(void);
     
     vv=(double *)malloc((n+1)*sizeof(double));
     

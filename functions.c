@@ -1669,7 +1669,7 @@ double ran1(int *idum) {
 void quick_sort (double *list, int *index, int n) {
     
     int i;
-    void quick_sort_1();
+    void quick_sort_1(void);
     
     for (i = 0; i < n; i++) index [i] = i;
     quick_sort_1 (list, index, 0, n-1);

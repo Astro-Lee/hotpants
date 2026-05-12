@@ -26,7 +26,7 @@ DESTDIR ?=
 #
 
 # standard usage
-COPTS = -funroll-loops -fcommon -O3 -ansi -std=c99 -pedantic-errors -Wall $(CFITSIO_CFLAGS) -D_GNU_SOURCE
+COPTS = -funroll-loops -fcommon -O3 -ansi -std=c99 -pedantic-errors -Wall -Wno-unused-but-set-variable $(CFITSIO_CFLAGS) -D_GNU_SOURCE
 LIBS  = $(CFITSIO_LIBS) -lm
 
 # compiler

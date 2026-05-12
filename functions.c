@@ -772,7 +772,7 @@ int getStampStats3(float *data,
     
     /* this came primarily from Gary Bernstein */
     
-    extern int flcomp(double *, double *);
+    extern int flcomp(const void *, const void *);
     
     double   bin1,binsize,maxdens,moden;
     double   sumx,sumxx,isd;
@@ -1707,10 +1707,12 @@ void quick_sort_1(double *list, int *index, int left_end, int right_end) {
 }
 
 /**** comparison call for the qsort ****/
-int flcomp(double *x, double *y)
+int flcomp(const void *a, const void *b)
 {
-    if (*x>*y) return(1);
-    else if (*x==*y) return(0);
+    double x = *(const double *)a;
+    double y = *(const double *)b;
+    if (x > y) return(1);
+    else if (x == y) return(0);
     else return(-1);
 }
 

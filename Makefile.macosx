@@ -1,55 +1,79 @@
-CFITSIOINCDIR = /usr/local/include
+#############################################################
+# CFITSIO detection: pkg-config > environment > defaults
+#
+ifeq ($(shell pkg-config --exists cfitsio && echo yes),yes)
+  CFITSIO_CFLAGS = $(shell pkg-config --cflags cfitsio)
+  CFITSIO_LIBS   = $(shell pkg-config --libs cfitsio)
+else
+  CFITSIOINCDIR ?= /usr/local/include
+  CFITSIO_CFLAGS = -I$(CFITSIOINCDIR)
+  CFITSIO_LIBS   = -lcfitsio
+endif
 
-#use only with no debugging
-COPTS = -funroll-loops -O3 -ansi -Wall -I$(CFITSIOINCDIR) -I/usr/include/malloc
-LIBS  =  -lm -lcfitsio  
+#
+#
+#############################################################
+# INSTALL PATHS
+#
+PREFIX  ?= /usr/local
+DESTDIR ?=
 
-CC    = gcc 
+#
+#
+#############################################################
+# COMPILATION OPTIONS
+#
+
+COPTS = -funroll-loops -O3 -ansi -Wall $(CFITSIO_CFLAGS) -I/usr/include/malloc
+LIBS  = $(CFITSIO_LIBS) -lm
+
+CC    = gcc
+
+#
+#
+#############################################################
+# BUILD TARGETS
+#
 
 STDH  = functions.h globals.h defaults.h
-ALL   = main.o vargs.o alard.o functions.o 
-SWIG  = alard.o functions.o 
-ALLT  = main_test.o vargs.o alard.o functions.o 
+ALL   = main.o vargs.o alard.o functions.o
 
-all:	hotpants 
+all:	hotpants
 
 hotpants: $(ALL)
 	$(CC) $(ALL) -o hotpants $(LIBS) $(COPTS)
 
-hotpants_test: $(ALLT)
-	$(CC) $(ALLT) -o hotpants_test $(LIBS) $(COPTS)
-
-main_test.o: $(STDH) main_test.c
-	$(CC) $(COPTS)  -c main_test.c
-
 main.o: $(STDH) main.c
-	$(CC) $(COPTS)  -c main.c
+	$(CC) $(COPTS) -c main.c
 
 alard.o: $(STDH) alard.c
-	$(CC) $(COPTS)  -c alard.c
+	$(CC) $(COPTS) -c alard.c
 
 functions.o: $(STDH) functions.c
-	$(CC) $(COPTS)  -c functions.c
+	$(CC) $(COPTS) -c functions.c
 
 vargs.o: $(STDH) vargs.c
-	$(CC) $(COPTS)  -c vargs.c
+	$(CC) $(COPTS) -c vargs.c
 
-NCOPTS = -funroll-loops -O3 -I$(CFITSIOINCDIR) -I/usr/include/malloc
+NCOPTS = -funroll-loops -O3 $(CFITSIO_CFLAGS) -I/usr/include/malloc
 
-extractkern : extractkern.c
-	$(CC) $(NCOPTS) extractkern.c -o extractkern $(LIBS) 
+extractkern: extractkern.c
+	$(CC) $(NCOPTS) extractkern.c -o extractkern $(LIBS)
 
-maskim : maskim.c
+maskim: maskim.c
 	$(CC) $(NCOPTS) maskim.c -o maskim $(LIBS)
 
-install :
-	mv hotpants /usr/local/bin/
-	mv maskim /usr/local/bin/
-	mv extractkern /usr/local/bin/
+install:
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 0755 hotpants $(DESTDIR)$(PREFIX)/bin/hotpants
+	install -m 0755 maskim $(DESTDIR)$(PREFIX)/bin/maskim
+	install -m 0755 extractkern $(DESTDIR)$(PREFIX)/bin/extractkern
 
-clean :
+clean:
 	rm -f *.o
 	rm -f *~ .*~
 	rm -f hotpants
 	rm -f extractkern
 	rm -f maskim
+
+.PHONY: all install clean

@@ -1,0 +1,88 @@
+name: Build and Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x86_64
+          - os: macos-latest
+            platform: macos-arm64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcfitsio-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install cfitsio
+
+      - name: Build
+        run: make
+
+      - name: Package artifacts
+        run: |
+          mkdir -p dist/hotpants/bin
+          cp hotpants extractkern maskim dist/hotpants/bin/
+          tar -czf hotpants-${{ matrix.platform }}.tar.gz -C dist hotpants
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hotpants-${{ matrix.platform }}
+          path: hotpants-${{ matrix.platform }}.tar.gz
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: hotpants-*
+          merge-multiple: true
+          path: artifacts
+
+      - name: Extract version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true
+
+      - name: Update Homebrew tap
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git clone https://${GH_PAT}@github.com/Astro-Lee/homebrew-tap.git /tmp/tap
+          curl -L -o /tmp/hotpants.tar.gz "https://github.com/Astro-Lee/hotpants/archive/refs/tags/v${VERSION}.tar.gz"
+          SHA256=$(sha256sum /tmp/hotpants.tar.gz | cut -d' ' -f1)
+          sed -i "s|url \".*\"|url \"https://github.com/Astro-Lee/hotpants/archive/refs/tags/v${VERSION}.tar.gz\"|" /tmp/tap/Formula/hotpants.rb
+          sed -i "s|sha256 \".*\"|sha256 \"${SHA256}\"|" /tmp/tap/Formula/hotpants.rb
+          git -C /tmp/tap config user.name "github-actions[bot]"
+          git -C /tmp/tap config user.email "github-actions[bot]@users.noreply.github.com"
+          git -C /tmp/tap add Formula/hotpants.rb
+          git -C /tmp/tap commit -m "Update hotpants to v${VERSION}" || true
+          git -C /tmp/tap push

@@ -26,7 +26,7 @@ void   getKernelInfo(char *);
 void   getKernel(char *, double **);
 void   fits_get_kernel_btbl(fitsfile *, double **, int);
      
-void   getKernelVec();
+void   getKernelVec(void);
 double *kernel_vector(int, int, int, int, int *);
 double make_kernel(int, int, double *);
 void   spatial_convolve(float *, int, int, float, float, double *, float *);
@@ -346,7 +346,7 @@ void fits_get_kernel_btbl(fitsfile *kPtr, double **kernelSol, int nRegion) {
 /* from alard.c */
 /* ********************************** */
 
-void getKernelVec() {
+void getKernelVec(void) {
    /*****************************************************
     * Fills kernel_vec with kernel weight filter, called only once
     *****************************************************/

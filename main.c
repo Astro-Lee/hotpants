@@ -18,7 +18,7 @@ int main(int argc,char *argv[]) {
     double      sumKernel;                              /* photometric normalization */
     double      meansigSubstamps,scatterSubstamps;      /* mean sigma and scatter of substamps, for fits header */
     double      meansigSubstampsF,scatterSubstampsF;    /* mean sigma and scatter of substamps, using final noise */
-    double      meanksumSubstamps,scatterksumSubstamps; /* mean and scatter of ksum */
+
     int         NskippedSubstamps;                      /* Number of skipped substamps, for fits header */
     
     /*
